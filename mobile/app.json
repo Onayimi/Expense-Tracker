@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Expense Tracker",
+    "slug": "expense-tracker",
+    "version": "1.0.0",
+    "scheme": "expensetracker",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#2D6A4F"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.personal.expensetracker"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2D6A4F"
+      },
+      "package": "com.personal.expensetracker"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
