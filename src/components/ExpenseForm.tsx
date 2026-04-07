@@ -9,13 +9,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CATEGORIES, type FundsType, type ExpenseFor } from "@/types";
+import { CATEGORIES, type FundingSource, type FundsType, type ExpenseFor } from "@/types";
 import { todayInputDate, validateExpenseForm } from "@/lib/utils";
-
-interface FundingSource {
-  id: number;
-  name: string;
-}
 
 interface ExpenseFormProps {
   initialData?: {

@@ -2,15 +2,7 @@
  * Utility / helper functions used across the app.
  */
 
-import {
-  EXPENSE_FOR,
-  BORROWED_STATUS,
-  REIMBURSEMENT_STATUS,
-  type ExpenseFor,
-  type FundsType,
-  type BorrowedStatus,
-  type ReimbursementStatus,
-} from "@/types";
+import type { FundsType, ExpenseFor, BorrowedStatus, ReimbursementStatus } from "@/types";
 
 // ── Formatting ─────────────────────────────────────────────────────────────
 
@@ -45,71 +37,18 @@ export function todayInputDate(): string {
   return toInputDate(new Date());
 }
 
-// ── Label helpers ──────────────────────────────────────────────────────────
-
-/** Human-readable label for expenseFor value */
-export function expenseForLabel(expenseFor: ExpenseFor | string): string {
-  const labels: Record<string, string> = {
-    ME: "Me",
-    HOUSEHOLD: "Household",
-    HUBBY: "Hubby",
-  };
-  return labels[expenseFor] ?? expenseFor;
-}
-
-/** Human-readable label for fundsType value */
-export function fundsTypeLabel(fundsType: FundsType | string): string {
-  const labels: Record<string, string> = {
-    MINE: "My money",
-    BORROWED: "Borrowed",
-  };
-  return labels[fundsType] ?? fundsType;
-}
-
-/** Human-readable label for borrowedStatus value */
-export function borrowedStatusLabel(status: BorrowedStatus | string): string {
-  const labels: Record<string, string> = {
-    OUTSTANDING: "Outstanding",
-    REPAID: "Repaid",
-  };
-  return labels[status] ?? status;
-}
-
-/** Human-readable label for reimbursementStatus value */
-export function reimbursementStatusLabel(
-  status: ReimbursementStatus | string
-): string {
-  const labels: Record<string, string> = {
-    OWES_ME: "Hubby owes me",
-    PAID_BACK: "Paid back",
-  };
-  return labels[status] ?? status;
-}
-
 // ── Business logic helpers ─────────────────────────────────────────────────
 
-/**
- * Given an expense's fundsType, returns the borrowedStatus that should
- * automatically be set when the expense is first created.
- * BORROWED → OUTSTANDING, MINE → null
- */
-export function getDefaultBorrowedStatus(
-  fundsType: FundsType
-): BorrowedStatus | null {
-  return fundsType === "BORROWED" ? BORROWED_STATUS.OUTSTANDING : null;
+// If an expense is paid with borrowed money, automatically mark it Outstanding.
+// BORROWED → "OUTSTANDING",  MINE → null
+export function getDefaultBorrowedStatus(fundsType: FundsType): BorrowedStatus | null {
+  return fundsType === "BORROWED" ? "OUTSTANDING" : null;
 }
 
-/**
- * Given an expense's expenseFor, returns the reimbursementStatus that should
- * automatically be set when the expense is first created.
- * HUBBY → OWES_ME, anything else → null
- */
-export function getDefaultReimbursementStatus(
-  expenseFor: ExpenseFor
-): ReimbursementStatus | null {
-  return expenseFor === EXPENSE_FOR.HUBBY
-    ? REIMBURSEMENT_STATUS.OWES_ME
-    : null;
+// If an expense is for hubby, automatically mark it as Owes Me.
+// HUBBY → "OWES_ME",  ME/HOUSEHOLD → null
+export function getDefaultReimbursementStatus(expenseFor: ExpenseFor): ReimbursementStatus | null {
+  return expenseFor === "HUBBY" ? "OWES_ME" : null;
 }
 
 // ── CSV Export ─────────────────────────────────────────────────────────────
@@ -125,8 +64,8 @@ export function toCSV(rows: Record<string, unknown>[]): string {
       headers
         .map((h) => {
           const val = row[h];
-          // Wrap values containing commas or quotes in double quotes
           const str = val == null ? "" : String(val);
+          // Wrap values that contain commas or quotes in double quotes
           return str.includes(",") || str.includes('"')
             ? `"${str.replace(/"/g, '""')}"`
             : str;
@@ -140,7 +79,7 @@ export function toCSV(rows: Record<string, unknown>[]): string {
 
 // ── Validation ─────────────────────────────────────────────────────────────
 
-/** Basic expense form validation. Returns an error message or null. */
+/** Basic expense form validation. Returns an error message, or null if valid. */
 export function validateExpenseForm(data: {
   title: string;
   amount: number | string;
@@ -164,5 +103,5 @@ export function validateExpenseForm(data: {
   if (!data.fundingSourceId) {
     return "Please select a funding source";
   }
-  return null; // no errors
+  return null;
 }

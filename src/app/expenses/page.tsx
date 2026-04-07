@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ExpenseTable from "@/components/ExpenseTable";
 import { CATEGORIES } from "@/types";
@@ -43,8 +43,10 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [fundingSources, setFundingSources] = useState<FundingSource[]>([]);
   const [loading, setLoading] = useState(true);
+  // Incrementing this triggers a re-fetch — used after delete/repay/reimburse actions
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Load funding sources once for the filter dropdown
+  // Load funding sources once on mount (for the Source filter dropdown)
   useEffect(() => {
     fetch("/api/funding-sources")
       .then((r) => r.json())
@@ -52,7 +54,8 @@ export default function ExpensesPage() {
       .catch(console.error);
   }, []);
 
-  const loadExpenses = useCallback(() => {
+  // Re-fetch expenses whenever any filter changes, or when refreshKey increments
+  useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set("search", search);
@@ -68,11 +71,12 @@ export default function ExpensesPage() {
       .then(setExpenses)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [search, category, fundingSource, expenseFor, fundsType, month, year]);
+  }, [search, category, fundingSource, expenseFor, fundsType, month, year, refreshKey]);
 
-  useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
+  // Called by ExpenseTable after a delete/repay/reimburse action
+  function refresh() {
+    setRefreshKey((k) => k + 1);
+  }
 
   function handleExport() {
     const params = new URLSearchParams();
@@ -215,7 +219,7 @@ export default function ExpensesPage() {
           <p className="text-forest-300 animate-pulse text-sm">Loading expenses…</p>
         </div>
       ) : (
-        <ExpenseTable expenses={expenses} onRefresh={loadExpenses} />
+        <ExpenseTable expenses={expenses} onRefresh={refresh} />
       )}
     </div>
   );
