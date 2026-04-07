@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom CSS variables for the brand palette ─────────────────────── */
+:root {
+  --forest:  #0C3B2C;
+  --gold:    #F0A020;
+  --mint:    #CBF0E4;
+  --crimson: #CC1F1F;
+}
+
+/* ── Base styles ────────────────────────────────────────────────────── */
+@layer base {
+  body {
+    /* Very light mint tint as the page background */
+    background-color: #F0FBF7;
+    color: #1a1a1a;
+  }
+
+  h1 { @apply text-2xl font-bold text-forest; }
+  h2 { @apply text-xl font-semibold text-forest; }
+  h3 { @apply text-lg font-semibold text-forest-600; }
+}
+
+/* ── Reusable component styles ──────────────────────────────────────── */
+@layer components {
+
+  /* White card with a subtle shadow */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-mint-100 p-5;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────── */
+
+  /* Gold primary button — used for main actions like "Add Expense" */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2
+           bg-gold text-white text-sm font-semibold rounded-xl
+           hover:bg-gold-600 focus:outline-none focus:ring-2
+           focus:ring-gold-400 focus:ring-offset-2
+           transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Forest green outlined secondary button */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2
+           bg-white text-forest text-sm font-medium rounded-xl
+           border border-forest-200 hover:bg-forest-50
+           focus:outline-none focus:ring-2 focus:ring-forest-300
+           focus:ring-offset-2 transition-colors;
+  }
+
+  /* Danger / destructive action */
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-3 py-1.5
+           bg-crimson-50 text-crimson text-sm font-medium rounded-lg
+           border border-crimson-200 hover:bg-crimson-100 transition-colors;
+  }
+
+  /* Success action (mark repaid / paid back) */
+  .btn-success {
+    @apply inline-flex items-center gap-2 px-3 py-1.5
+           bg-gold text-white text-sm font-medium rounded-lg
+           hover:bg-gold-600 transition-colors;
+  }
+
+  /* ── Form controls ────────────────────────────────────────────────── */
+
+  .input {
+    @apply w-full px-3 py-2 text-sm
+           border border-mint-200 rounded-xl bg-white
+           text-forest
+           focus:outline-none focus:ring-2 focus:ring-gold-400
+           focus:border-transparent transition;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-forest-600 mb-1;
+  }
+
+  /* ── Table ────────────────────────────────────────────────────────── */
+
+  .table-header {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 text-sm;
+  }
+}

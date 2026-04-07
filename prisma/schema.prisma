@@ -1,0 +1,68 @@
+// Prisma Schema for Expense Tracker
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNDING SOURCES
+// Represents where the money comes from (e.g. Personal, House, Loan from hubby)
+// You can add more sources in the app or directly via Prisma Studio
+// ─────────────────────────────────────────────────────────────────────────────
+model FundingSource {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique             // e.g. "Personal", "House"
+  isDefault Boolean   @default(false)     // true for the 3 built-in sources
+  createdAt DateTime  @default(now())
+  expenses  Expense[]                     // All expenses linked to this source
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPENSES
+// The main model. Every expense entry lives here.
+// ─────────────────────────────────────────────────────────────────────────────
+model Expense {
+  id              Int           @id @default(autoincrement())
+
+  // Basic info
+  date            DateTime                          // When the expense occurred
+  title           String                            // Short description, e.g. "Groceries"
+  category        String                            // e.g. "Food & Groceries"
+  amount          Float                             // Expense amount (e.g. 45.50)
+  notes           String?                           // Optional extra details
+
+  // Funding
+  fundingSourceId Int                               // Foreign key → FundingSource
+  fundingSource   FundingSource @relation(fields: [fundingSourceId], references: [id])
+
+  // MINE = paid with your own money
+  // BORROWED = paid with money you borrowed (e.g. from hubby)
+  fundsType       String        @default("MINE")    // "MINE" | "BORROWED"
+
+  // ME = just for you
+  // HOUSEHOLD = shared household expense
+  // HUBBY = you paid for hubby and he owes you
+  expenseFor      String        @default("ME")      // "ME" | "HOUSEHOLD" | "HUBBY"
+
+  // ── Borrowed money tracking ────────────────────────────────────────────────
+  // Automatically set to "OUTSTANDING" when fundsType = "BORROWED"
+  // You can later mark it "REPAID"
+  borrowedStatus  String?                           // "OUTSTANDING" | "REPAID" | null
+  repaidDate      DateTime?                         // When you repaid the borrowed money
+
+  // ── Hubby reimbursement tracking ──────────────────────────────────────────
+  // Automatically set to "OWES_ME" when expenseFor = "HUBBY"
+  // You can later mark it "PAID_BACK"
+  reimbursementStatus String?                       // "OWES_ME" | "PAID_BACK" | null
+  reimbursementDate   DateTime?                     // When hubby paid you back
+
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
