@@ -16,7 +16,8 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "data:export": "node scripts/export-data.js",
-    "data:import": "node scripts/import-data.js"
+    "data:import": "node scripts/import-data.js",
+    "prod:setup": "node scripts/setup-prod.js"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
