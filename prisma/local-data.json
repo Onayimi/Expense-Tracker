@@ -1,0 +1,417 @@
+{
+  "sources": [
+    {
+      "id": "cmns9kj37000014b5dtj47zw9",
+      "name": "Salary",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.171Z",
+      "updatedAt": "2026-04-10T02:05:31.171Z"
+    },
+    {
+      "id": "cmns9kj3e000114b5hwbxsags",
+      "name": "Rent Received",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.179Z",
+      "updatedAt": "2026-04-10T02:05:31.179Z"
+    },
+    {
+      "id": "cmns9kj3l000214b5vemurlxc",
+      "name": "Child Care Benefit",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.186Z",
+      "updatedAt": "2026-04-10T02:05:31.186Z"
+    },
+    {
+      "id": "cmns9kj3t000314b5ofkofzgg",
+      "name": "Hubby",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.193Z",
+      "updatedAt": "2026-04-10T02:05:31.193Z"
+    },
+    {
+      "id": "cmns9kj40000414b5q64io0ii",
+      "name": "Refund",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.200Z",
+      "updatedAt": "2026-04-10T02:05:31.200Z"
+    },
+    {
+      "id": "cmns9kj47000514b53l0nfmfl",
+      "name": "Gift",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.207Z",
+      "updatedAt": "2026-04-10T02:05:31.207Z"
+    },
+    {
+      "id": "cmns9kj4e000614b566mis5an",
+      "name": "Other",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.215Z",
+      "updatedAt": "2026-04-10T02:05:31.215Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cmns9kj4l000714b5ee0y966f",
+      "name": "Groceries",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.221Z",
+      "updatedAt": "2026-04-10T02:05:31.221Z"
+    },
+    {
+      "id": "cmns9kj4s000814b5b1a3jd2x",
+      "name": "Transport",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.228Z",
+      "updatedAt": "2026-04-10T02:05:31.228Z"
+    },
+    {
+      "id": "cmns9kj4y000914b5a79frwe4",
+      "name": "Rent",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.235Z",
+      "updatedAt": "2026-04-10T02:05:31.235Z"
+    },
+    {
+      "id": "cmns9kj55000a14b5534ig4me",
+      "name": "Utilities",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.241Z",
+      "updatedAt": "2026-04-10T02:05:31.241Z"
+    },
+    {
+      "id": "cmns9kj5c000b14b584o1papq",
+      "name": "Kids",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.248Z",
+      "updatedAt": "2026-04-10T02:05:31.248Z"
+    },
+    {
+      "id": "cmns9kj5j000c14b5if29b58j",
+      "name": "Child Care",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.255Z",
+      "updatedAt": "2026-04-10T02:05:31.255Z"
+    },
+    {
+      "id": "cmns9kj5q000d14b5oo0fuc75",
+      "name": "Shopping",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.262Z",
+      "updatedAt": "2026-04-10T02:05:31.262Z"
+    },
+    {
+      "id": "cmns9kj5w000e14b5kfnjmhry",
+      "name": "Health",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.268Z",
+      "updatedAt": "2026-04-10T02:05:31.268Z"
+    },
+    {
+      "id": "cmns9kj62000f14b54ahww7na",
+      "name": "Eating Out",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.274Z",
+      "updatedAt": "2026-04-10T02:05:31.274Z"
+    },
+    {
+      "id": "cmns9kj69000g14b5ujwsvwg0",
+      "name": "Personal Care",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.281Z",
+      "updatedAt": "2026-04-10T02:05:31.281Z"
+    },
+    {
+      "id": "cmns9kj6f000h14b58nq1wk9e",
+      "name": "Gifts",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.288Z",
+      "updatedAt": "2026-04-10T02:05:31.288Z"
+    },
+    {
+      "id": "cmns9kj6n000i14b5tmxnqhsc",
+      "name": "Household",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.295Z",
+      "updatedAt": "2026-04-10T02:05:31.295Z"
+    },
+    {
+      "id": "cmns9kj6t000j14b5woxdvrw8",
+      "name": "Entertainment",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.302Z",
+      "updatedAt": "2026-04-10T02:05:31.302Z"
+    },
+    {
+      "id": "cmns9kj6z000k14b591lqm666",
+      "name": "Savings",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.308Z",
+      "updatedAt": "2026-04-10T02:05:31.308Z"
+    },
+    {
+      "id": "cmns9kj75000l14b5s2jrd06z",
+      "name": "Miscellaneous",
+      "isDefault": true,
+      "createdAt": "2026-04-10T02:05:31.314Z",
+      "updatedAt": "2026-04-10T02:05:31.314Z"
+    }
+  ],
+  "income": [
+    {
+      "id": "cmns9kj7e000m14b56yw3tzpv",
+      "amount": 3200,
+      "date": "2026-04-01T00:00:00.000Z",
+      "notes": "April salary",
+      "sourceId": "cmns9kj37000014b5dtj47zw9",
+      "createdAt": "2026-04-10T02:05:31.322Z",
+      "updatedAt": "2026-04-10T02:05:31.322Z"
+    },
+    {
+      "id": "cmns9kj7e000n14b515041ids",
+      "amount": 850,
+      "date": "2026-04-05T00:00:00.000Z",
+      "notes": "Monthly rent from tenant",
+      "sourceId": "cmns9kj3e000114b5hwbxsags",
+      "createdAt": "2026-04-10T02:05:31.322Z",
+      "updatedAt": "2026-04-10T02:05:31.322Z"
+    },
+    {
+      "id": "cmns9kj7e000o14b5lg00tle4",
+      "amount": 600,
+      "date": "2026-04-07T00:00:00.000Z",
+      "notes": "Government child care benefit",
+      "sourceId": "cmns9kj3l000214b5vemurlxc",
+      "createdAt": "2026-04-10T02:05:31.322Z",
+      "updatedAt": "2026-04-10T02:05:31.322Z"
+    },
+    {
+      "id": "cmns9kj7e000p14b5mu7tqxzq",
+      "amount": 3200,
+      "date": "2026-03-01T00:00:00.000Z",
+      "notes": "March salary",
+      "sourceId": "cmns9kj37000014b5dtj47zw9",
+      "createdAt": "2026-04-10T02:05:31.322Z",
+      "updatedAt": "2026-04-10T02:05:31.322Z"
+    },
+    {
+      "id": "cmns9kj7e000q14b5dr6nto8t",
+      "amount": 850,
+      "date": "2026-03-05T00:00:00.000Z",
+      "notes": "Rent from tenant",
+      "sourceId": "cmns9kj3e000114b5hwbxsags",
+      "createdAt": "2026-04-10T02:05:31.322Z",
+      "updatedAt": "2026-04-10T02:05:31.322Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "cmns9kj7m000s14b5syezd3bm",
+      "amount": 124.5,
+      "date": "2026-04-03T00:00:00.000Z",
+      "notes": "Weekly shop",
+      "categoryId": "cmns9kj4l000714b5ee0y966f",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.330Z",
+      "updatedAt": "2026-04-10T02:05:31.330Z"
+    },
+    {
+      "id": "cmns9kj7u001214b5zb357773",
+      "amount": 85,
+      "date": "2026-04-06T00:00:00.000Z",
+      "notes": "Monthly bus passes",
+      "categoryId": "cmns9kj4s000814b5b1a3jd2x",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.339Z",
+      "updatedAt": "2026-04-10T02:05:31.339Z"
+    },
+    {
+      "id": "cmns9kj82001414b5nyp0r7nf",
+      "amount": 1200,
+      "date": "2026-04-01T00:00:00.000Z",
+      "notes": "April rent",
+      "categoryId": "cmns9kj4y000914b5a79frwe4",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.346Z",
+      "updatedAt": "2026-04-10T02:05:31.346Z"
+    },
+    {
+      "id": "cmns9kj89001614b57pvdnekp",
+      "amount": 45,
+      "date": "2026-04-08T00:00:00.000Z",
+      "notes": "Dinner at Bella Vista",
+      "categoryId": "cmns9kj62000f14b54ahww7na",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.353Z",
+      "updatedAt": "2026-04-10T02:05:31.353Z"
+    },
+    {
+      "id": "cmns9kj8g001814b52k9ez5o2",
+      "amount": 320,
+      "date": "2026-04-04T00:00:00.000Z",
+      "notes": "New work shoes for hubby",
+      "categoryId": "cmns9kj5q000d14b5oo0fuc75",
+      "isHubbyBorrow": true,
+      "createdAt": "2026-04-10T02:05:31.360Z",
+      "updatedAt": "2026-04-10T02:05:31.360Z"
+    },
+    {
+      "id": "cmns9kj91001e14b56myzs60o",
+      "amount": 75,
+      "date": "2026-03-15T00:00:00.000Z",
+      "notes": "Hubby doctor visit",
+      "categoryId": "cmns9kj5w000e14b5kfnjmhry",
+      "isHubbyBorrow": true,
+      "createdAt": "2026-04-10T02:05:31.382Z",
+      "updatedAt": "2026-04-10T02:05:31.382Z"
+    },
+    {
+      "id": "cmns9kj9m001k14b59mg9xwg1",
+      "amount": 180,
+      "date": "2026-04-09T00:00:00.000Z",
+      "notes": "Annual subscription renewal",
+      "categoryId": "cmns9kj6t000j14b5woxdvrw8",
+      "isHubbyBorrow": true,
+      "createdAt": "2026-04-10T02:05:31.403Z",
+      "updatedAt": "2026-04-10T02:05:31.403Z"
+    },
+    {
+      "id": "cmns9kja0001n14b5ypegxu8e",
+      "amount": 98.2,
+      "date": "2026-03-08T00:00:00.000Z",
+      "notes": "Supermarket run",
+      "categoryId": "cmns9kj4l000714b5ee0y966f",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.416Z",
+      "updatedAt": "2026-04-10T02:05:31.416Z"
+    },
+    {
+      "id": "cmns9kja0001o14b5ymyskh7j",
+      "amount": 1200,
+      "date": "2026-03-01T00:00:00.000Z",
+      "notes": "March rent",
+      "categoryId": "cmns9kj4y000914b5a79frwe4",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.416Z",
+      "updatedAt": "2026-04-10T02:05:31.416Z"
+    },
+    {
+      "id": "cmns9kja0001p14b54h4hj4kh",
+      "amount": 112,
+      "date": "2026-03-05T00:00:00.000Z",
+      "notes": "Electricity & water",
+      "categoryId": "cmns9kj55000a14b5534ig4me",
+      "isHubbyBorrow": false,
+      "createdAt": "2026-04-10T02:05:31.416Z",
+      "updatedAt": "2026-04-10T02:05:31.416Z"
+    }
+  ],
+  "lineItems": [
+    {
+      "id": "cmns9kj7m000t14b5e0dezvyl",
+      "description": "Oranges",
+      "amount": 5,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000u14b564vx2pt5",
+      "description": "Bread (x3)",
+      "amount": 8,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000v14b5ottwbbxh",
+      "description": "Milk",
+      "amount": 6,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000w14b552ysxhjv",
+      "description": "Chicken",
+      "amount": 18,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000x14b5ckp8ni8t",
+      "description": "Vegetables",
+      "amount": 22,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000y14b5l6l0zxbd",
+      "description": "Snacks & treats",
+      "amount": 14.5,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m000z14b5d3ku4a5g",
+      "description": "Cleaning supplies",
+      "amount": 31,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    },
+    {
+      "id": "cmns9kj7m001014b57aus4nhd",
+      "description": "Toiletries",
+      "amount": 20,
+      "expenseId": "cmns9kj7m000s14b5syezd3bm"
+    }
+  ],
+  "hubbyBorrows": [
+    {
+      "id": "cmns9kj8m001a14b5ienajvh5",
+      "expenseId": "cmns9kj8g001814b52k9ez5o2",
+      "description": "Work shoes — hubby to repay",
+      "totalAmount": 320,
+      "paidAmount": 120,
+      "status": "PARTIAL",
+      "createdAt": "2026-04-10T02:05:31.366Z",
+      "updatedAt": "2026-04-10T02:05:31.366Z"
+    },
+    {
+      "id": "cmns9kj99001g14b5v4479qic",
+      "expenseId": "cmns9kj91001e14b56myzs60o",
+      "description": "GP visit for hubby",
+      "totalAmount": 75,
+      "paidAmount": 75,
+      "status": "PAID",
+      "createdAt": "2026-04-10T02:05:31.389Z",
+      "updatedAt": "2026-04-10T02:05:31.389Z"
+    },
+    {
+      "id": "cmns9kj9t001m14b5iqbomsep",
+      "expenseId": "cmns9kj9m001k14b59mg9xwg1",
+      "description": "Streaming + software renewals",
+      "totalAmount": 180,
+      "paidAmount": 0,
+      "status": "OUTSTANDING",
+      "createdAt": "2026-04-10T02:05:31.410Z",
+      "updatedAt": "2026-04-10T02:05:31.410Z"
+    }
+  ],
+  "repayments": [
+    {
+      "id": "cmns9kj8u001c14b5yhn5jird",
+      "hubbyBorrowId": "cmns9kj8m001a14b5ienajvh5",
+      "amount": 120,
+      "date": "2026-04-10T00:00:00.000Z",
+      "notes": "First installment",
+      "createdAt": "2026-04-10T02:05:31.374Z"
+    },
+    {
+      "id": "cmns9kj9g001i14b5dga1vg8r",
+      "hubbyBorrowId": "cmns9kj99001g14b5v4479qic",
+      "amount": 75,
+      "date": "2026-03-20T00:00:00.000Z",
+      "notes": "Paid in full",
+      "createdAt": "2026-04-10T02:05:31.396Z"
+    }
+  ],
+  "settings": [
+    {
+      "id": "1",
+      "appName": "Vela Finance",
+      "currency": "USD",
+      "currencySymbol": "$"
+    }
+  ]
+}

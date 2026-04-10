@@ -1,17 +1,21 @@
 {
   "name": "expense-tracker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:migrate": "prisma migrate dev --name init",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma migrate deploy && next build",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset --force && npm run db:seed",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "data:export": "node scripts/export-data.js",
+    "data:import": "node scripts/import-data.js"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
