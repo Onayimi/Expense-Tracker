@@ -1,6 +1,3 @@
-// Prisma Schema for Expense Tracker
-// Learn more: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,59 +7,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FUNDING SOURCES
-// Represents where the money comes from (e.g. Personal, House, Loan from hubby)
-// You can add more sources in the app or directly via Prisma Studio
-// ─────────────────────────────────────────────────────────────────────────────
-model FundingSource {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique             // e.g. "Personal", "House"
-  isDefault Boolean   @default(false)     // true for the 3 built-in sources
-  createdAt DateTime  @default(now())
-  expenses  Expense[]                     // All expenses linked to this source
+// ─── Income Sources ──────────────────────────────────────────────────────────
+model IncomeSource {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  income    Income[]
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPENSES
-// The main model. Every expense entry lives here.
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Expense Categories ───────────────────────────────────────────────────────
+model ExpenseCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  isDefault Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expenses  Expense[]
+}
+
+// ─── Income Entries ───────────────────────────────────────────────────────────
+model Income {
+  id        String       @id @default(cuid())
+  amount    Float
+  date      DateTime
+  notes     String?
+  sourceId  String
+  source    IncomeSource @relation(fields: [sourceId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+// ─── Expense Entries ──────────────────────────────────────────────────────────
 model Expense {
-  id              Int           @id @default(autoincrement())
+  id            String            @id @default(cuid())
+  amount        Float
+  date          DateTime
+  notes         String?
+  categoryId    String
+  category      ExpenseCategory   @relation(fields: [categoryId], references: [id])
+  isHubbyBorrow Boolean           @default(false)
+  lineItems     ExpenseLineItem[]
+  hubbyBorrow   HubbyBorrow?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
 
-  // Basic info
-  date            DateTime                          // When the expense occurred
-  title           String                            // Short description, e.g. "Groceries"
-  category        String                            // e.g. "Food & Groceries"
-  amount          Float                             // Expense amount (e.g. 45.50)
-  notes           String?                           // Optional extra details
+// ─── Expense Line Items (optional breakdown) ──────────────────────────────────
+model ExpenseLineItem {
+  id          String  @id @default(cuid())
+  description String
+  amount      Float
+  expenseId   String
+  expense     Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+}
 
-  // Funding
-  fundingSourceId Int                               // Foreign key → FundingSource
-  fundingSource   FundingSource @relation(fields: [fundingSourceId], references: [id])
+// ─── Hubby Borrow Records ─────────────────────────────────────────────────────
+model HubbyBorrow {
+  id          String      @id @default(cuid())
+  expenseId   String      @unique
+  expense     Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  description String?
+  totalAmount Float
+  paidAmount  Float       @default(0)
+  status      String      @default("OUTSTANDING")
+  repayments  Repayment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
 
-  // MINE = paid with your own money
-  // BORROWED = paid with money you borrowed (e.g. from hubby)
-  fundsType       String        @default("MINE")    // "MINE" | "BORROWED"
+// ─── Repayments from Hubby ────────────────────────────────────────────────────
+model Repayment {
+  id            String      @id @default(cuid())
+  hubbyBorrowId String
+  hubbyBorrow   HubbyBorrow @relation(fields: [hubbyBorrowId], references: [id], onDelete: Cascade)
+  amount        Float
+  date          DateTime
+  notes         String?
+  createdAt     DateTime    @default(now())
+}
 
-  // ME = just for you
-  // HOUSEHOLD = shared household expense
-  // HUBBY = you paid for hubby and he owes you
-  expenseFor      String        @default("ME")      // "ME" | "HOUSEHOLD" | "HUBBY"
-
-  // ── Borrowed money tracking ────────────────────────────────────────────────
-  // Automatically set to "OUTSTANDING" when fundsType = "BORROWED"
-  // You can later mark it "REPAID"
-  borrowedStatus  String?                           // "OUTSTANDING" | "REPAID" | null
-  repaidDate      DateTime?                         // When you repaid the borrowed money
-
-  // ── Hubby reimbursement tracking ──────────────────────────────────────────
-  // Automatically set to "OWES_ME" when expenseFor = "HUBBY"
-  // You can later mark it "PAID_BACK"
-  reimbursementStatus String?                       // "OWES_ME" | "PAID_BACK" | null
-  reimbursementDate   DateTime?                     // When hubby paid you back
-
-  // Timestamps
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+// ─── App Settings ─────────────────────────────────────────────────────────────
+model AppSettings {
+  id             String @id @default("1")
+  appName        String @default("Vela")
+  currency       String @default("USD")
+  currencySymbol String @default("$")
 }

@@ -1,169 +1,182 @@
-# 💰 Expense Tracker
+# Vela — Personal Finance Tracker
 
-A beginner-friendly personal expense tracking app built with **Next.js 14**, **SQLite**, **Prisma**, and **Tailwind CSS**.
+A polished, mobile-first personal expense tracking app built for iPhone. Track income, personal expenses, and money lent to your partner with partial/full repayment tracking.
 
----
+## App Name
 
-## What It Does
+**Vela** — means "to watch over" (guarding your finances)
 
-- Track **personal**, **household**, and **hubby** expenses
-- Track expenses paid with **borrowed money** (mark as Outstanding / Repaid)
-- Track expenses **hubby owes you** (mark as Owes Me / Paid Back)
-- **Dashboard** with spending summaries and visual breakdowns
-- **Filter** by category, source of funds, who it's for, month, and year
-- **Search** expenses by title or notes
-- **Export to CSV**
-- Clean **status badges** and colour-coded UI
+## Color Palette
 
----
+| Role | Color | Hex |
+|------|-------|-----|
+| Primary | Deep Forest Green | `#123227` |
+| Accent | Gold/Amber | `#D9A11E` |
+| Background | Off-white | `#EEF4F3` |
+| Borders | Light Sage | `#C6D4D2` |
+| Danger | Accent Red | `#C62828` |
 
-## Colour Scheme
+## Features
 
-| Colour        | Hex       | Used for                            |
-|---------------|-----------|-------------------------------------|
-| Forest Green  | `#0C3B2C` | Navbar, headings, primary brand     |
-| Amber Gold    | `#F0A020` | Buttons, active states, outstanding |
-| Light Mint    | `#CBF0E4` | Backgrounds, success tints          |
-| Crimson Red   | `#CC1F1F` | Alerts, hubby owes, warnings        |
+### Dashboard
+- Available balance (Income − Expenses + Hubby Repayments)
+- This month income & spending snapshot
+- Quick-add buttons
+- Hubby outstanding balance alerts
+- Category breakdown (this month)
+- Recent transaction feed
 
----
+### Income Tracking
+- Add income with source, date, amount, notes
+- Filter by source
+- Per-source totals
+- Create/rename/delete custom sources
+- Full CRUD with edit and delete
 
-## Folder Structure
+### Expense Tracking
+- Add expenses by category
+- Optional itemized line-item breakdown (e.g. Groceries → bread $4, milk $6)
+- Mark any expense as "paid on behalf of hubby"
+- Full CRUD with edit and delete
+- Filter by category chips
+
+### Hubby Tracker
+- All expenses paid on behalf of hubby
+- Status: Outstanding / Partially Paid / Fully Paid
+- Record partial or full repayments
+- Repayment history per borrow entry
+- Delete repayments (auto-recalculates balance)
+- Over-payment prevention
+
+### Transaction History
+- All income, expenses, hubby borrows, and repayments in one view
+- Filter by type (tab pills)
+- Date range filter
+- Keyword search
+- Sort newest/oldest
+- Net total for current view
+
+### Reports
+- Monthly period selector
+- Spending vs. income vs. net summary
+- Spending rate bar
+- Category breakdown with percentage bars
+- Income by source breakdown
+- All-time hubby summary (lent / repaid / outstanding)
+- Monthly trend (last 6 months, clickable)
+
+### Settings
+- App name and currency settings
+- Add/rename/delete income sources
+- Add/rename/delete expense categories
+- Deletion protection (blocked if in use)
+- CSV data export
+
+## Balance Logic
 
 ```
-expense-tracker/
-├── prisma/
-│   ├── schema.prisma        # Database schema (FundingSource + Expense models)
-│   └── seed.ts              # Seeds default funding sources + sample data
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx       # Root layout (Navbar + footer)
-│   │   ├── page.tsx         # Dashboard
-│   │   ├── globals.css      # Tailwind + custom styles
-│   │   ├── expenses/
-│   │   │   ├── page.tsx     # Expenses list with filters
-│   │   │   ├── new/page.tsx # Add new expense
-│   │   │   └── [id]/edit/   # Edit existing expense
-│   │   ├── borrowed/
-│   │   │   └── page.tsx     # Borrowed money tracker
-│   │   ├── reimbursements/
-│   │   │   └── page.tsx     # Hubby reimbursements tracker
-│   │   └── api/
-│   │       ├── dashboard/   # GET dashboard stats
-│   │       ├── expenses/    # GET/POST expenses; PUT/DELETE by ID
-│   │       │   └── [id]/
-│   │       │       ├── repay/      # POST — mark borrowed as repaid
-│   │       │       └── reimburse/ # POST — mark hubby as paid back
-│   │       ├── funding-sources/   # GET/POST funding sources
-│   │       └── export/            # GET CSV export
-│   ├── components/
-│   │   ├── Navbar.tsx        # Top navigation
-│   │   ├── ExpenseForm.tsx   # Create/edit form
-│   │   ├── ExpenseTable.tsx  # Expense list table
-│   │   ├── StatusBadge.tsx   # Coloured status pills
-│   │   └── DashboardCard.tsx # Stat card widget
-│   ├── lib/
-│   │   ├── prisma.ts         # Prisma client singleton
-│   │   └── utils.ts          # Formatting, validation, CSV helpers
-│   └── types/
-│       └── index.ts          # Shared TypeScript types + constants
-├── .env                      # DATABASE_URL (SQLite path)
-├── package.json
-├── tailwind.config.ts        # Custom colour palette
-└── tsconfig.json
+Available Balance = Total Income − Total Expenses + Total Hubby Repayments
 ```
 
----
-
-## Setup Instructions
-
-### 1. Install dependencies
-
-```bash
-npm install
-```
-
-### 2. Set up the database
-
-```bash
-# Run the Prisma migration (creates the SQLite database + tables)
-npm run db:migrate
-
-# Seed with default funding sources and sample expenses
-npm run db:seed
-```
-
-### 3. Start the development server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## All Available Commands
-
-| Command            | Description                                   |
-|--------------------|-----------------------------------------------|
-| `npm run dev`      | Start development server on port 3000         |
-| `npm run build`    | Build for production                          |
-| `npm run start`    | Run the production build                      |
-| `npm run db:migrate` | Create/update the database schema           |
-| `npm run db:seed`  | Populate the database with sample data        |
-| `npm run db:studio`| Open Prisma Studio (visual DB browser)       |
-| `npm run db:reset` | Reset database and re-seed from scratch       |
-
----
-
-## How the Loan / Reimbursement Logic Works
-
-### Borrowed Money
-
-1. When you create an expense and select **"Borrowed money"** as the funds type,
-   the system automatically sets `borrowedStatus = "OUTSTANDING"`.
-2. The expense appears in the **Borrowed Money** page and the dashboard summary.
-3. When you repay the money, click **"Mark Repaid"**.
-   The system sets `borrowedStatus = "REPAID"` and records today's date as `repaidDate`.
-4. Repaid items move to the "settled" section and are no longer counted in the outstanding total.
-
-### Hubby Reimbursements
-
-1. When you create an expense and select **"Hubby"** as who it's for,
-   the system automatically sets `reimbursementStatus = "OWES_ME"`.
-2. The expense appears in the **Reimbursements** page and the dashboard summary.
-3. When hubby pays you back, click **"Paid Back"**.
-   The system sets `reimbursementStatus = "PAID_BACK"` and records `reimbursementDate`.
-4. Settled items move to the "paid back" section and are no longer counted in the owed total.
-
-### Edge Case: Both Apply
-
-An expense can be **both** borrowed AND for hubby (e.g. you borrowed money to pay for his prescription).
-In that case, both statuses are tracked independently — you'll need to repay the loan AND receive reimbursement from hubby.
-
----
-
-## Adding More Funding Sources
-
-By default the app ships with:
-- **Personal** — your own personal money
-- **House** — joint household account
-- **Loan from Hubby** — money borrowed from your husband
-
-To add more, either:
-- Use Prisma Studio: `npm run db:studio` → FundingSource → Add record
-- Or call the API: `POST /api/funding-sources` with `{ "name": "My New Source" }`
-- Or add entries directly to `prisma/seed.ts` and re-run `npm run db:seed`
-
----
+All expenses (including hubby borrows) reduce available balance immediately because money left your hands. Repayments from hubby restore the balance when received.
 
 ## Tech Stack
 
-| Technology  | Version | Purpose                   |
-|-------------|---------|---------------------------|
-| Next.js     | 14      | Framework (App Router)    |
-| Prisma      | 5       | ORM / database access     |
-| SQLite      | —       | Local database (via Prisma)|
-| Tailwind CSS| 3       | Styling                   |
-| TypeScript  | 5       | Type safety               |
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Database | SQLite via Prisma |
+| ORM | Prisma 5 |
+| Runtime | Node.js 22 |
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm
+
+### Setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create environment file
+echo 'DATABASE_URL="file:./prisma/dev.db"' > .env
+
+# 3. Create database and run migrations
+npx prisma migrate dev --name init
+
+# 4. Seed with sample data
+npm run db:seed
+
+# 5. Start development server
+npm run dev
+```
+
+Open http://localhost:3000 in your browser.
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build production app |
+| `npm run start` | Start production server |
+| `npm run db:seed` | Populate database with sample data |
+| `npm run db:studio` | Open Prisma Studio (DB browser) |
+| `npm run db:reset` | Reset DB and re-seed |
+
+## Database Schema
+
+```
+IncomeSource    — Income sources (Salary, Rent, etc.)
+Income          — Income entries linked to a source
+ExpenseCategory — Expense categories (Groceries, Transport, etc.)
+Expense         — Expense entries with optional line items
+ExpenseLineItem — Individual items within an expense
+HubbyBorrow     — Tracks expenses paid on behalf of partner
+Repayment       — Individual repayment records for HubbyBorrow
+AppSettings     — App name, currency, etc.
+```
+
+## Push to GitHub
+
+```bash
+git add -A
+git commit -m "feat: complete Vela expense tracking app"
+git push -u origin claude/expense-tracker-app-dxfmD
+```
+
+## PWA Installation (iPhone)
+
+1. Open the app in Safari
+2. Tap the Share button
+3. Tap "Add to Home Screen"
+4. Tap "Add"
+
+The app will install with the forest green theme and behave like a native app.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx          # Dashboard
+│   ├── income/page.tsx   # Income tracking
+│   ├── expenses/page.tsx # Expense tracking
+│   ├── hubby/page.tsx    # Partner borrow tracker
+│   ├── history/page.tsx  # Full transaction history
+│   ├── reports/page.tsx  # Reports & summaries
+│   ├── settings/page.tsx # App settings
+│   └── api/              # All API routes
+├── components/
+│   ├── layout/BottomNav.tsx
+│   └── ui/               # Modal, Badge, EmptyState, ConfirmDialog
+├── lib/
+│   ├── prisma.ts
+│   └── utils.ts
+└── types/index.ts
+```

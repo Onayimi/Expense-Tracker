@@ -1,30 +1,23 @@
-/**
- * Utility / helper functions used across the app.
- */
+// ─── Currency Formatting ──────────────────────────────────────────────────────
 
-import type { FundsType, ExpenseFor, BorrowedStatus, ReimbursementStatus } from "@/types";
-
-// ── Formatting ─────────────────────────────────────────────────────────────
-
-/** Format a number as currency, e.g. 45.5 → "£45.50" */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-  }).format(amount);
+export function formatCurrency(amount: number, symbol = "$"): string {
+  return `${symbol}${Math.abs(amount).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
-/** Format a date string or Date object as "5 Jan 2024" */
+// ─── Date Formatting ──────────────────────────────────────────────────────────
+
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("en-GB", {
+  return new Date(date).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 }
 
-/** Format a date for an HTML date input (YYYY-MM-DD) */
-export function toInputDate(date: string | Date): string {
+export function formatDateInput(date: string | Date): string {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -32,76 +25,69 @@ export function toInputDate(date: string | Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/** Today's date formatted for an HTML date input */
-export function todayInputDate(): string {
-  return toInputDate(new Date());
+export function formatMonthYear(date: string | Date): string {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 }
 
-// ── Business logic helpers ─────────────────────────────────────────────────
-
-// If an expense is paid with borrowed money, automatically mark it Outstanding.
-// BORROWED → "OUTSTANDING",  MINE → null
-export function getDefaultBorrowedStatus(fundsType: FundsType): BorrowedStatus | null {
-  return fundsType === "BORROWED" ? "OUTSTANDING" : null;
+export function todayISO(): string {
+  const d = new Date();
+  return formatDateInput(d);
 }
 
-// If an expense is for hubby, automatically mark it as Owes Me.
-// HUBBY → "OWES_ME",  ME/HOUSEHOLD → null
-export function getDefaultReimbursementStatus(expenseFor: ExpenseFor): ReimbursementStatus | null {
-  return expenseFor === "HUBBY" ? "OWES_ME" : null;
+// ─── Month Helpers ────────────────────────────────────────────────────────────
+
+export function startOfMonth(date: Date = new Date()): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-// ── CSV Export ─────────────────────────────────────────────────────────────
+export function endOfMonth(date: Date = new Date()): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+}
 
-/** Convert an array of objects to a CSV string */
+// ─── Status Helpers ───────────────────────────────────────────────────────────
+
+export function statusLabel(status: string): string {
+  const map: Record<string, string> = {
+    OUTSTANDING: "Outstanding",
+    PARTIAL: "Partially Paid",
+    PAID: "Fully Paid",
+  };
+  return map[status] ?? status;
+}
+
+export function statusColor(status: string): string {
+  const map: Record<string, string> = {
+    OUTSTANDING: "text-amber-700 bg-amber-50 border-amber-300",
+    PARTIAL: "text-blue-700 bg-blue-50 border-blue-300",
+    PAID: "text-green-700 bg-green-50 border-green-300",
+  };
+  return map[status] ?? "text-gray-600 bg-gray-50 border-gray-200";
+}
+
+// ─── Number Helpers ───────────────────────────────────────────────────────────
+
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+export function pct(part: number, total: number): number {
+  if (total === 0) return 0;
+  return clamp((part / total) * 100, 0, 100);
+}
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
 export function toCSV(rows: Record<string, unknown>[]): string {
   if (rows.length === 0) return "";
-
   const headers = Object.keys(rows[0]);
-  const csvRows = [
-    headers.join(","),
-    ...rows.map((row) =>
-      headers
-        .map((h) => {
-          const val = row[h];
-          const str = val == null ? "" : String(val);
-          // Wrap values that contain commas or quotes in double quotes
-          return str.includes(",") || str.includes('"')
-            ? `"${str.replace(/"/g, '""')}"`
-            : str;
-        })
-        .join(",")
-    ),
-  ];
-
-  return csvRows.join("\n");
-}
-
-// ── Validation ─────────────────────────────────────────────────────────────
-
-/** Basic expense form validation. Returns an error message, or null if valid. */
-export function validateExpenseForm(data: {
-  title: string;
-  amount: number | string;
-  category: string;
-  date: string;
-  fundingSourceId: number | string;
-}): string | null {
-  if (!data.title || String(data.title).trim().length === 0) {
-    return "Title is required";
-  }
-  if (!data.date) {
-    return "Date is required";
-  }
-  const amount = Number(data.amount);
-  if (isNaN(amount) || amount <= 0) {
-    return "Amount must be a positive number";
-  }
-  if (!data.category) {
-    return "Category is required";
-  }
-  if (!data.fundingSourceId) {
-    return "Please select a funding source";
-  }
-  return null;
+  const escape = (v: unknown): string => {
+    const s = v == null ? "" : String(v);
+    return s.includes(",") || s.includes('"') || s.includes("\n")
+      ? `"${s.replace(/"/g, '""')}"`
+      : s;
+  };
+  return [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
 }

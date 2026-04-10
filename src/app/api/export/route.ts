@@ -1,73 +1,60 @@
-/**
- * API Route: /api/export
- * -----------------------
- * GET — Downloads all expenses as a CSV file.
- *
- * Supports the same filters as /api/expenses so you can export
- * a filtered subset (e.g. only borrowed money, only hubby expenses).
- */
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { toCSV, formatDate } from "@/lib/utils";
+import { toCSV } from "@/lib/utils";
 
-// Force dynamic rendering — this route reads query params from the URL
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
+    const [income, expenses, repayments] = await Promise.all([
+      prisma.income.findMany({ include: { source: true }, orderBy: { date: "desc" } }),
+      prisma.expense.findMany({ include: { category: true, lineItems: true, hubbyBorrow: true }, orderBy: { date: "desc" } }),
+      prisma.repayment.findMany({ include: { hubbyBorrow: true }, orderBy: { date: "desc" } }),
+    ]);
 
-    // Accept the same filters as the main expenses endpoint
-    const category = searchParams.get("category") ?? "";
-    const fundingSource = searchParams.get("fundingSource") ?? "";
-    const expenseFor = searchParams.get("expenseFor") ?? "";
-    const fundsType = searchParams.get("fundsType") ?? "";
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
-    if (category) where.category = category;
-    if (expenseFor) where.expenseFor = expenseFor;
-    if (fundsType) where.fundsType = fundsType;
-    if (fundingSource) where.fundingSource = { name: fundingSource };
-
-    const expenses = await prisma.expense.findMany({
-      where,
-      include: { fundingSource: true },
-      orderBy: { date: "desc" },
-    });
-
-    // Transform Prisma records into flat CSV-friendly objects
-    const rows = expenses.map((e) => ({
-      ID: e.id,
-      Date: formatDate(e.date),
-      Title: e.title,
-      Category: e.category,
-      Amount: e.amount.toFixed(2),
-      "Funding Source": e.fundingSource.name,
-      "Funds Type": e.fundsType,
-      "Expense For": e.expenseFor,
-      "Borrowed Status": e.borrowedStatus ?? "",
-      "Repaid Date": e.repaidDate ? formatDate(e.repaidDate) : "",
-      "Reimbursement Status": e.reimbursementStatus ?? "",
-      "Reimbursement Date": e.reimbursementDate
-        ? formatDate(e.reimbursementDate)
-        : "",
-      Notes: e.notes ?? "",
-      "Created At": formatDate(e.createdAt),
+    const incomeRows = income.map((i) => ({
+      type: "Income",
+      date: new Date(i.date).toLocaleDateString(),
+      description: `Income - ${i.source.name}`,
+      amount: i.amount,
+      source: i.source.name,
+      category: "",
+      notes: i.notes ?? "",
+      hubbyStatus: "",
     }));
 
-    const csv = toCSV(rows);
+    const expenseRows = expenses.map((e) => ({
+      type: e.isHubbyBorrow ? "Hubby Borrow" : "Expense",
+      date: new Date(e.date).toLocaleDateString(),
+      description: e.category.name,
+      amount: -e.amount,
+      source: "",
+      category: e.category.name,
+      notes: e.notes ?? "",
+      hubbyStatus: e.hubbyBorrow?.status ?? "",
+    }));
 
-    // Return as a downloadable CSV file
+    const repaymentRows = repayments.map((r) => ({
+      type: "Hubby Repayment",
+      date: new Date(r.date).toLocaleDateString(),
+      description: "Repayment from hubby",
+      amount: r.amount,
+      source: "",
+      category: "",
+      notes: r.notes ?? "",
+      hubbyStatus: "",
+    }));
+
+    const csv = toCSV([...incomeRows, ...expenseRows, ...repaymentRows]);
+
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename="expenses-${new Date().toISOString().split("T")[0]}.csv"`,
+        "Content-Disposition": `attachment; filename="vela-export-${new Date().toISOString().split("T")[0]}.csv"`,
       },
     });
-  } catch (error) {
-    console.error("Export failed:", error);
+  } catch (err) {
+    console.error("[export]", err);
     return NextResponse.json({ error: "Export failed" }, { status: 500 });
   }
 }

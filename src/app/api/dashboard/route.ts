@@ -1,113 +1,99 @@
-/**
- * API Route: /api/dashboard
- * --------------------------
- * GET — Returns all the aggregated stats for the dashboard page.
- *
- * Calculates:
- * - Total expense count and total amount
- * - Breakdown by category
- * - Breakdown by funding source
- * - Outstanding and repaid borrowed money totals
- * - Hubby owes me and received reimbursement totals
- * - Lists of unpaid items for the bottom-of-dashboard summaries
- */
-
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { startOfMonth, endOfMonth } from "@/lib/utils";
 
-// Force dynamic — always fetch fresh data from the database
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    // ── Fetch all expenses with their funding source ────────────────────
-    const allExpenses = await prisma.expense.findMany({
-      include: { fundingSource: true },
-      orderBy: { date: "desc" },
-    });
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
 
-    // ── Total overview ───────────────────────────────────────────────────
-    const totalExpenses = allExpenses.length;
-    const totalAmount = allExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const [
+      allIncomeAgg,
+      allExpensesAgg,
+      allHubbyBorrows,
+      thisMonthIncomeAgg,
+      thisMonthExpensesAgg,
+      recentIncome,
+      recentExpenses,
+      pendingHubbyBorrows,
+      categoryBreakdown,
+    ] = await Promise.all([
+      prisma.income.aggregate({ _sum: { amount: true } }),
+      prisma.expense.aggregate({ _sum: { amount: true } }),
+      prisma.hubbyBorrow.findMany({ select: { totalAmount: true, paidAmount: true } }),
+      prisma.income.aggregate({
+        _sum: { amount: true },
+        where: { date: { gte: monthStart, lte: monthEnd } },
+      }),
+      prisma.expense.aggregate({
+        _sum: { amount: true },
+        where: { date: { gte: monthStart, lte: monthEnd } },
+      }),
+      prisma.income.findMany({
+        take: 5,
+        orderBy: { date: "desc" },
+        include: { source: true },
+      }),
+      prisma.expense.findMany({
+        take: 5,
+        orderBy: { date: "desc" },
+        include: { category: true, lineItems: true, hubbyBorrow: { include: { repayments: true } } },
+      }),
+      prisma.hubbyBorrow.findMany({
+        where: { status: { in: ["OUTSTANDING", "PARTIAL"] } },
+        include: {
+          expense: { include: { category: true, lineItems: true } },
+          repayments: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.expense.groupBy({
+        by: ["categoryId"],
+        _sum: { amount: true },
+        _count: { id: true },
+        where: { date: { gte: monthStart, lte: monthEnd } },
+        orderBy: { _sum: { amount: "desc" } },
+      }),
+    ]);
 
-    // ── Group by category ────────────────────────────────────────────────
-    const categoryMap = new Map<string, { total: number; count: number }>();
-    for (const e of allExpenses) {
-      const existing = categoryMap.get(e.category) ?? { total: 0, count: 0 };
-      categoryMap.set(e.category, {
-        total: existing.total + e.amount,
-        count: existing.count + 1,
-      });
-    }
-    const byCategory = Array.from(categoryMap.entries())
-      .map(([category, data]) => ({ category, ...data }))
-      .sort((a, b) => b.total - a.total); // Sort highest spend first
+    const categoryIds = categoryBreakdown.map((c) => c.categoryId);
+    const categories = categoryIds.length
+      ? await prisma.expenseCategory.findMany({ where: { id: { in: categoryIds } } })
+      : [];
+    const catMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
-    // ── Group by funding source ──────────────────────────────────────────
-    const sourceMap = new Map<string, { total: number; count: number }>();
-    for (const e of allExpenses) {
-      const sourceName = e.fundingSource.name;
-      const existing = sourceMap.get(sourceName) ?? { total: 0, count: 0 };
-      sourceMap.set(sourceName, {
-        total: existing.total + e.amount,
-        count: existing.count + 1,
-      });
-    }
-    const bySource = Array.from(sourceMap.entries())
-      .map(([source, data]) => ({ source, ...data }))
-      .sort((a, b) => b.total - a.total);
-
-    // ── Borrowed money totals ────────────────────────────────────────────
-    const outstandingBorrowedExpenses = allExpenses.filter(
-      (e) => e.borrowedStatus === "OUTSTANDING"
-    );
-    const repaidBorrowedExpenses = allExpenses.filter(
-      (e) => e.borrowedStatus === "REPAID"
-    );
-
-    const totalOutstandingBorrowed = outstandingBorrowedExpenses.reduce(
-      (sum, e) => sum + e.amount,
-      0
-    );
-    const totalRepaidBorrowed = repaidBorrowedExpenses.reduce(
-      (sum, e) => sum + e.amount,
-      0
-    );
-
-    // ── Hubby reimbursement totals ───────────────────────────────────────
-    const hubbyOwesMeExpenses = allExpenses.filter(
-      (e) => e.reimbursementStatus === "OWES_ME"
-    );
-    const paidBackExpenses = allExpenses.filter(
-      (e) => e.reimbursementStatus === "PAID_BACK"
-    );
-
-    const totalHubbyOwesMe = hubbyOwesMeExpenses.reduce(
-      (sum, e) => sum + e.amount,
-      0
-    );
-    const totalReimbursementsReceived = paidBackExpenses.reduce(
-      (sum, e) => sum + e.amount,
-      0
-    );
+    const totalIncome = allIncomeAgg._sum.amount ?? 0;
+    const totalExpenses = allExpensesAgg._sum.amount ?? 0;
+    const totalHubbyBorrowed = allHubbyBorrows.reduce((s, h) => s + h.totalAmount, 0);
+    const totalRepaid = allHubbyBorrows.reduce((s, h) => s + h.paidAmount, 0);
+    const outstandingHubbyBalance = totalHubbyBorrowed - totalRepaid;
+    // Balance = Income - All expenses (including hubby borrows which left your hands)
+    //         + Repayments received back from hubby
+    const availableBalance = totalIncome - totalExpenses + totalRepaid;
 
     return NextResponse.json({
+      totalIncome,
       totalExpenses,
-      totalAmount,
-      byCategory,
-      bySource,
-      totalOutstandingBorrowed,
-      totalRepaidBorrowed,
-      totalHubbyOwesMe,
-      totalReimbursementsReceived,
-      outstandingBorrowedExpenses,
-      hubbyOwesMeExpenses,
+      totalHubbyBorrowed,
+      totalRepaid,
+      availableBalance,
+      outstandingHubbyBalance,
+      thisMonthIncome: thisMonthIncomeAgg._sum.amount ?? 0,
+      thisMonthExpenses: thisMonthExpensesAgg._sum.amount ?? 0,
+      recentIncome,
+      recentExpenses,
+      pendingHubbyBorrows,
+      categoryBreakdown: categoryBreakdown.map((c) => ({
+        category: catMap[c.categoryId] ?? "Unknown",
+        total: c._sum.amount ?? 0,
+        count: c._count.id,
+      })),
     });
-  } catch (error) {
-    console.error("Dashboard API error:", error);
-    return NextResponse.json(
-      { error: "Failed to load dashboard data" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("[dashboard]", err);
+    return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 }

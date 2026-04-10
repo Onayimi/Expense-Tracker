@@ -1,184 +1,250 @@
-/**
- * Database Seed Script
- * ---------------------
- * Run with: npm run db:seed
- *
- * This script:
- *  1. Creates the 3 default funding sources
- *  2. Adds sample expense data so you can see the app in action right away
- */
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🌱 Seeding Vela database...");
 
-  // ── Step 1: Create default funding sources ──────────────────────────────
-  // upsert = create if not exists, update if exists (safe to run multiple times)
-  const personal = await prisma.fundingSource.upsert({
-    where: { name: "Personal" },
+  // ── App Settings ──────────────────────────────────────────────────────────
+  await prisma.appSettings.upsert({
+    where: { id: "1" },
     update: {},
-    create: { name: "Personal", isDefault: true },
+    create: { id: "1", appName: "Vela", currency: "USD", currencySymbol: "$" },
   });
 
-  const house = await prisma.fundingSource.upsert({
-    where: { name: "House" },
-    update: {},
-    create: { name: "House", isDefault: true },
-  });
-
-  const loanFromHubby = await prisma.fundingSource.upsert({
-    where: { name: "Loan from Hubby" },
-    update: {},
-    create: { name: "Loan from Hubby", isDefault: true },
-  });
-
-  console.log("✅ Funding sources created:", { personal, house, loanFromHubby });
-
-  // ── Step 2: Add sample expenses ─────────────────────────────────────────
-  // This gives you real data to explore the app with
-
-  const sampleExpenses = [
-    // Normal personal expense
-    {
-      date: new Date("2024-01-05"),
-      title: "Grocery Run",
-      category: "Food & Groceries",
-      amount: 87.5,
-      fundingSourceId: personal.id,
-      fundsType: "MINE",
-      expenseFor: "ME",
-      notes: "Weekly groceries from Walmart",
-    },
-    // Household expense
-    {
-      date: new Date("2024-01-08"),
-      title: "Electricity Bill",
-      category: "Utilities",
-      amount: 120.0,
-      fundingSourceId: house.id,
-      fundsType: "MINE",
-      expenseFor: "HOUSEHOLD",
-      notes: "January electricity",
-    },
-    // Borrowed money — outstanding
-    {
-      date: new Date("2024-01-12"),
-      title: "Car Repair",
-      category: "Transport",
-      amount: 350.0,
-      fundingSourceId: loanFromHubby.id,
-      fundsType: "BORROWED",
-      expenseFor: "ME",
-      borrowedStatus: "OUTSTANDING",
-      notes: "Borrowed from hubby to fix car brakes",
-    },
-    // Borrowed money — already repaid
-    {
-      date: new Date("2024-01-03"),
-      title: "Doctor Visit",
-      category: "Healthcare",
-      amount: 65.0,
-      fundingSourceId: loanFromHubby.id,
-      fundsType: "BORROWED",
-      expenseFor: "ME",
-      borrowedStatus: "REPAID",
-      repaidDate: new Date("2024-01-20"),
-      notes: "GP consultation, repaid hubby from next paycheck",
-    },
-    // Hubby owes me — outstanding
-    {
-      date: new Date("2024-01-15"),
-      title: "Hubby's Gym Membership",
-      category: "Health & Fitness",
-      amount: 45.0,
-      fundingSourceId: personal.id,
-      fundsType: "MINE",
-      expenseFor: "HUBBY",
-      reimbursementStatus: "OWES_ME",
-      notes: "Paid his gym renewal — he needs to pay me back",
-    },
-    // Hubby owes me — already paid back
-    {
-      date: new Date("2024-01-10"),
-      title: "Hubby's Lunch",
-      category: "Dining Out",
-      amount: 28.0,
-      fundingSourceId: personal.id,
-      fundsType: "MINE",
-      expenseFor: "HUBBY",
-      reimbursementStatus: "PAID_BACK",
-      reimbursementDate: new Date("2024-01-18"),
-      notes: "Paid for his work lunch, he paid me back",
-    },
-    // Expense that is BOTH borrowed and for hubby
-    {
-      date: new Date("2024-01-20"),
-      title: "Hubby's Prescription",
-      category: "Healthcare",
-      amount: 35.0,
-      fundingSourceId: loanFromHubby.id,
-      fundsType: "BORROWED",
-      expenseFor: "HUBBY",
-      borrowedStatus: "OUTSTANDING",
-      reimbursementStatus: "OWES_ME",
-      notes: "Used borrowed money to pay for his meds — he owes me AND I need to repay loan",
-    },
-    // Regular shopping
-    {
-      date: new Date("2024-02-02"),
-      title: "New Running Shoes",
-      category: "Shopping",
-      amount: 95.0,
-      fundingSourceId: personal.id,
-      fundsType: "MINE",
-      expenseFor: "ME",
-      notes: "On sale at Nike",
-    },
-    // Household maintenance
-    {
-      date: new Date("2024-02-05"),
-      title: "Plumber Call-out",
-      category: "Home & Maintenance",
-      amount: 180.0,
-      fundingSourceId: house.id,
-      fundsType: "MINE",
-      expenseFor: "HOUSEHOLD",
-      notes: "Fixed leaking pipe under kitchen sink",
-    },
-    // Another outstanding borrowed
-    {
-      date: new Date("2024-02-10"),
-      title: "Emergency Vet Visit",
-      category: "Pets",
-      amount: 220.0,
-      fundingSourceId: loanFromHubby.id,
-      fundsType: "BORROWED",
-      expenseFor: "ME",
-      borrowedStatus: "OUTSTANDING",
-      notes: "Cat needed urgent care — borrowed from hubby",
-    },
+  // ── Income Sources ────────────────────────────────────────────────────────
+  const sourceNames = [
+    "Salary", "Rent Received", "Child Care Benefit",
+    "Hubby", "Refund", "Gift", "Other",
   ];
-
-  // Delete existing sample expenses before re-seeding
-  // (comment this out if you want to keep your real data)
-  await prisma.expense.deleteMany({});
-
-  for (const expense of sampleExpenses) {
-    await prisma.expense.create({ data: expense });
+  const sources: Record<string, string> = {};
+  for (const name of sourceNames) {
+    const s = await prisma.incomeSource.upsert({
+      where: { name },
+      update: {},
+      create: { name, isDefault: true },
+    });
+    sources[name] = s.id;
   }
 
-  console.log(`✅ Created ${sampleExpenses.length} sample expenses`);
-  console.log("🎉 Seeding complete!");
+  // ── Expense Categories ────────────────────────────────────────────────────
+  const categoryNames = [
+    "Groceries", "Transport", "Rent", "Utilities", "Kids",
+    "Child Care", "Shopping", "Health", "Eating Out", "Personal Care",
+    "Gifts", "Household", "Entertainment", "Savings", "Miscellaneous",
+  ];
+  const cats: Record<string, string> = {};
+  for (const name of categoryNames) {
+    const c = await prisma.expenseCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name, isDefault: true },
+    });
+    cats[name] = c.id;
+  }
+
+  // ── Sample Income ──────────────────────────────────────────────────────────
+  const now = new Date();
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  await prisma.income.deleteMany({});
+  await prisma.income.createMany({
+    data: [
+      {
+        amount: 3200,
+        date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1),
+        notes: "April salary",
+        sourceId: sources["Salary"],
+      },
+      {
+        amount: 850,
+        date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 5),
+        notes: "Monthly rent from tenant",
+        sourceId: sources["Rent Received"],
+      },
+      {
+        amount: 600,
+        date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 7),
+        notes: "Government child care benefit",
+        sourceId: sources["Child Care Benefit"],
+      },
+      {
+        amount: 3200,
+        date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+        notes: "March salary",
+        sourceId: sources["Salary"],
+      },
+      {
+        amount: 850,
+        date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 5),
+        notes: "Rent from tenant",
+        sourceId: sources["Rent Received"],
+      },
+    ],
+  });
+
+  // ── Sample Expenses ────────────────────────────────────────────────────────
+  await prisma.expense.deleteMany({});
+
+  const exp1 = await prisma.expense.create({
+    data: {
+      amount: 124.50,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 3),
+      notes: "Weekly shop",
+      categoryId: cats["Groceries"],
+      isHubbyBorrow: false,
+      lineItems: {
+        create: [
+          { description: "Oranges", amount: 5 },
+          { description: "Bread (x3)", amount: 8 },
+          { description: "Milk", amount: 6 },
+          { description: "Chicken", amount: 18 },
+          { description: "Vegetables", amount: 22 },
+          { description: "Snacks & treats", amount: 14.50 },
+          { description: "Cleaning supplies", amount: 31 },
+          { description: "Toiletries", amount: 20 },
+        ],
+      },
+    },
+  });
+
+  const exp2 = await prisma.expense.create({
+    data: {
+      amount: 85,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 6),
+      notes: "Monthly bus passes",
+      categoryId: cats["Transport"],
+      isHubbyBorrow: false,
+    },
+  });
+
+  const exp3 = await prisma.expense.create({
+    data: {
+      amount: 1200,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1),
+      notes: "April rent",
+      categoryId: cats["Rent"],
+      isHubbyBorrow: false,
+    },
+  });
+
+  const exp4 = await prisma.expense.create({
+    data: {
+      amount: 45,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 8),
+      notes: "Dinner at Bella Vista",
+      categoryId: cats["Eating Out"],
+      isHubbyBorrow: false,
+    },
+  });
+
+  // Hubby borrow — partially repaid
+  const exp5 = await prisma.expense.create({
+    data: {
+      amount: 320,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 4),
+      notes: "New work shoes for hubby",
+      categoryId: cats["Shopping"],
+      isHubbyBorrow: true,
+    },
+  });
+  const hubby1 = await prisma.hubbyBorrow.create({
+    data: {
+      expenseId: exp5.id,
+      description: "Work shoes — hubby to repay",
+      totalAmount: 320,
+      paidAmount: 120,
+      status: "PARTIAL",
+    },
+  });
+  await prisma.repayment.create({
+    data: {
+      hubbyBorrowId: hubby1.id,
+      amount: 120,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 10),
+      notes: "First installment",
+    },
+  });
+
+  // Hubby borrow — fully repaid
+  const exp6 = await prisma.expense.create({
+    data: {
+      amount: 75,
+      date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 15),
+      notes: "Hubby doctor visit",
+      categoryId: cats["Health"],
+      isHubbyBorrow: true,
+    },
+  });
+  const hubby2 = await prisma.hubbyBorrow.create({
+    data: {
+      expenseId: exp6.id,
+      description: "GP visit for hubby",
+      totalAmount: 75,
+      paidAmount: 75,
+      status: "PAID",
+    },
+  });
+  await prisma.repayment.create({
+    data: {
+      hubbyBorrowId: hubby2.id,
+      amount: 75,
+      date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 20),
+      notes: "Paid in full",
+    },
+  });
+
+  // Hubby borrow — outstanding
+  const exp7 = await prisma.expense.create({
+    data: {
+      amount: 180,
+      date: new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 9),
+      notes: "Annual subscription renewal",
+      categoryId: cats["Entertainment"],
+      isHubbyBorrow: true,
+    },
+  });
+  await prisma.hubbyBorrow.create({
+    data: {
+      expenseId: exp7.id,
+      description: "Streaming + software renewals",
+      totalAmount: 180,
+      paidAmount: 0,
+      status: "OUTSTANDING",
+    },
+  });
+
+  // Last month expenses
+  await prisma.expense.createMany({
+    data: [
+      {
+        amount: 98.20,
+        date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 8),
+        notes: "Supermarket run",
+        categoryId: cats["Groceries"],
+        isHubbyBorrow: false,
+      },
+      {
+        amount: 1200,
+        date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+        notes: "March rent",
+        categoryId: cats["Rent"],
+        isHubbyBorrow: false,
+      },
+      {
+        amount: 112,
+        date: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 5),
+        notes: "Electricity & water",
+        categoryId: cats["Utilities"],
+        isHubbyBorrow: false,
+      },
+    ],
+  });
+
+  console.log("✅ Seeding complete — Vela is ready!");
 }
 
 main()
-  .catch((e) => {
-    console.error("❌ Seed failed:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((e) => { console.error("❌ Seed failed:", e); process.exit(1); })
+  .finally(() => prisma.$disconnect());
