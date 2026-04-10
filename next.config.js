@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Standard Next.js config — add custom settings here if needed
+  // Scope the TypeScript project to the web app source only.
+  // This prevents Next.js from accidentally type-checking the mobile/ Expo folder.
+  typescript: {
+    tsconfigPath: "./tsconfig.json",
+  },
 };
 
 module.exports = nextConfig;

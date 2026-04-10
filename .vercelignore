@@ -1,0 +1,6 @@
+# Exclude the Expo/React Native mobile app — Vercel only builds the Next.js web app
+mobile/
+
+# Exclude local data exports and migration scripts from the deployment bundle
+prisma/local-data.json
+scripts/
